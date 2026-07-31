@@ -1,678 +1,142 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>파일 저장소 by 민준</title>
-  <style>
-    :root {
-      --primary-color: #4f46e5;
-      --primary-hover: #4338ca;
-      --bg-color: #f4f7f6;
-      --card-bg: #ffffff;
-      --text-main: #1f2937;
-      --text-muted: #6b7280;
-      --border-color: #e5e7eb;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 650px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .main-title {
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: var(--text-main);
-      text-align: center;
-      margin-bottom: 5px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-      border: 1px solid var(--border-color);
-    }
-
-    .card h2 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: var(--text-main);
-    }
-
-    .card p {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-    }
-
-    .id-box-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .id-box {
-      flex: 1;
-      padding: 10px 14px;
-      background-color: #eef2ff;
-      border: 1px solid #c7d2fe;
-      border-radius: 6px;
-      font-family: monospace;
-      font-size: 1.1rem;
-      font-weight: bold;
-      color: #3730a3;
-      word-break: break-all;
-    }
-
-    .role-selection {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-top: 12px;
-      padding: 10px;
-      background: #f9fafb;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-    }
-
-    .role-selection label {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-    }
-
-    .role-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-left: 6px;
-    }
-
-    .role-editor { background: #dcfce7; color: #166534; }
-    .role-viewer { background: #fee2e2; color: #991b1b; }
-
-    .import-wrapper {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .import-input {
-      flex: 1;
-      padding: 9px 12px;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      font-size: 0.9rem;
-      outline: none;
-    }
-
-    .import-input:focus {
-      border-color: var(--primary-color);
-    }
-
-    button {
-      padding: 9px 15px;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      white-space: nowrap;
-    }
-
-    button:hover { background-color: var(--primary-hover); }
-    button.btn-secondary { background-color: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
-    button.btn-secondary:hover { background-color: #e5e7eb; }
-    button.btn-danger { background-color: #ef4444; color: white; }
-    button.btn-danger:hover { background-color: #dc2626; }
-
-    .drop-zone {
-      border: 2px dashed #a5b4fc;
-      border-radius: 8px;
-      padding: 30px 20px;
-      text-align: center;
-      background-color: #faf5ff;
-      cursor: pointer;
-      transition: background-color 0.2s, border-color 0.2s;
-    }
-
-    .drop-zone.disabled {
-      background-color: #f3f4f6;
-      border-color: #d1d5db;
-      cursor: not-allowed;
-    }
-
-    .drop-zone.dragover {
-      background-color: #e0e7ff;
-      border-color: #6366f1;
-    }
-
-    .drop-zone p { margin-bottom: 12px; color: #4b5563; }
-    #fileInput { display: none; }
-
-    .file-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .file-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 16px;
-      background-color: #f9fafb;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-    }
-
-    .file-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      overflow: hidden;
-      margin-right: 12px;
-    }
-
-    .file-name {
-      font-weight: 600;
-      font-size: 0.95rem;
-      color: var(--text-main);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .file-meta { font-size: 0.8rem; color: var(--text-muted); }
-    .file-actions { display: flex; gap: 6px; }
-    .empty-msg { text-align: center; color: var(--text-muted); font-size: 0.9rem; padding: 20px 0; }
-
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      padding: 20px;
-    }
-
-    .modal-content {
-      background: #fff;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 800px;
-      max-height: 85vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .modal-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .modal-title { font-weight: 700; font-size: 1.1rem; }
-    .modal-body {
-      padding: 20px;
-      overflow-y: auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 200px;
-    }
-
-    .modal-body img, .modal-body video {
-      max-width: 100%;
-      max-height: 60vh;
-      border-radius: 6px;
-    }
-
-    .modal-body iframe {
-      width: 100%;
-      height: 60vh;
-      border: none;
-    }
-
-    .modal-body pre {
-      white-space: pre-wrap;
-      word-break: break-all;
-      background: #f3f4f6;
-      padding: 15px;
-      border-radius: 6px;
-      width: 100%;
-      max-height: 60vh;
-      overflow-y: auto;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>파일 저장소 by 민준</title>
+    <style>
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #f4f6f8; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h2 { text-align: center; color: #333; margin-top: 0; }
+        .input-group { margin-bottom: 15px; }
+        label { font-size: 14px; font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .file-list { margin-top: 25px; }
+        .file-card { background: #fafafa; border: 1px solid #eee; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .file-info h4 { margin: 0 0 5px 0; color: #222; font-size: 15px; }
+        .file-info a { color: #007bff; text-decoration: none; font-size: 13px; font-weight: 500; }
+        .btn-del { background: #ff4d4d; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; width: auto; }
+    </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1 class="main-title">📁 파일 저장소 by 민준</h1>
-
-    <div class="card">
-      <h2>내 저장소 ID & 권한 설정</h2>
-      <p>단순화된 ID(영어 6자리 - 숫자 4자리)로 연결을 관리하세요.</p>
-      
-      <div class="id-box-wrapper">
-        <div id="anonymousId" class="id-box">ID 로딩 중...</div>
-        <button class="btn-secondary" onclick="copyId()">ID 복사</button>
-      </div>
-
-      <div class="role-selection">
-        <span>현재 권한:</span>
-        <label><input type="radio" name="userRole" value="editor" checked onchange="updateRole()"> 편집자 <span class="role-badge role-editor">Editor</span></label>
-        <label><input type="radio" name="userRole" value="viewer" onchange="updateRole()"> 뷰어 <span class="role-badge role-viewer">Viewer</span></label>
-      </div>
-
-      <div class="import-wrapper">
-        <input type="text" id="importIdInput" class="import-input" placeholder="이전할 ID 입력 (예: abcdef-1234)" />
-        <button class="btn-secondary" onclick="importCustomId()">ID 연결하기</button>
-      </div>
+<div class="container">
+    <h2>📁 무료 파일 & 링크 공유함</h2>
+    
+    <div class="input-group">
+        <label>제목 / 파일명</label>
+        <input type="text" id="title" placeholder="예: 구글 드라이브 사진 폴더">
     </div>
-
-    <div class="card" id="uploadCard">
-      <h2>파일 올리기</h2>
-      <p id="uploadDesc">여러 개의 파일을 한꺼번에 선택하거나 드래그할 수 있습니다.</p>
-
-      <div class="drop-zone" id="dropZone" onclick="triggerFileInput()">
-        <p id="dropZoneText">📁 클릭하여 여러 파일을 선택하거나 이곳으로 드래그해 놓으세요.</p>
-        <button type="button" id="uploadBtn">파일 선택하기</button>
-        <input type="file" id="fileInput" multiple onchange="handleFileSelect(event)">
-      </div>
+    
+    <div class="input-group">
+        <label>공유 링크 (URL)</label>
+        <input type="text" id="link" placeholder="https://...">
     </div>
+    
+    <button onclick="addLink()">등록하기</button>
 
-    <div class="card">
-      <h2>저장된 파일 목록</h2>
-      <p>보관 중인 파일 데이터입니다. 클릭하여 뷰어로 미리보기가 가능합니다.</p>
-      <ul id="fileList" class="file-list"></ul>
+    <div class="file-list" id="fileList">
+        <h3>공유된 목록</h3>
+        <!-- 목록이 여기에 자동으로 출력됩니다 -->
     </div>
-  </div>
+</div>
 
-  <div class="modal-overlay" id="viewerModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span class="modal-title" id="modalFileName">파일 미리보기</span>
-        <button class="btn-secondary" onclick="closeViewer()">닫기 ✕</button>
-      </div>
-      <div class="modal-body" id="modalBody"></div>
-    </div>
-  </div>
+<!-- Firebase SDK 불러오기 -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  <script>
-    const DB_NAME = "SimpleStorageDB";
-    const DB_VERSION = 1;
-    const STORE_IDENTITY = "device_identity";
-    const STORE_FILES = "user_files";
-    const ID_KEY = "anonymous_user_id";
+    // 전달받은 키 정보 입력 완료
+    const firebaseConfig = {
+        apiKey: "AIzaSyBQDhoTODeYqVXwfC-npGFM56P5_YfMpbQ",
+        authDomain: "file-4ec65.firebaseapp.com",
+        projectId: "file-4ec65",
+        storageBucket: "file-4ec65.firebasestorage.app",
+        messagingSenderId: "1040703486369",
+        appId: "1:1040703486369:web:e0c832ec5b89da6b67b3e0",
+        measurementId: "G-YVP578ZQPD"
+    };
 
-    let dbInstance = null;
-    let currentRole = "editor";
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    function initDB() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
+    // 목록 불러오기 함수
+    async function loadLinks() {
+        const listContainer = document.getElementById("fileList");
+        listContainer.innerHTML = "<h3>공유된 목록</h3>";
+        
+        try {
+            const q = query(collection(db, "files"), orderBy("createdAt", "desc"));
+            const querySnapshot = await getDocs(q);
 
-        request.onupgradeneeded = (e) => {
-          const db = e.target.result;
-          if (!db.objectStoreNames.contains(STORE_IDENTITY)) db.createObjectStore(STORE_IDENTITY);
-          if (!db.objectStoreNames.contains(STORE_FILES)) db.createObjectStore(STORE_FILES, { keyPath: "id", autoIncrement: true });
-        };
+            if (querySnapshot.empty) {
+                listContainer.innerHTML += "<p style='color:#888; font-size:14px;'>등록된 데이터가 없습니다.</p>";
+                return;
+            }
 
-        request.onsuccess = (e) => {
-          dbInstance = e.target.result;
-          resolve(dbInstance);
-        };
-
-        request.onerror = () => reject("저장소 연결 실패");
-      });
-    }
-
-    // --- ID 생성: 영어 6글자 - 숫자 4자리 (예: abcdef-1234) ---
-    function generateSimpleId() {
-      const chars = "abcdefghijklmnopqrstuvwxyz";
-      let text = "";
-      for (let i = 0; i < 6; i++) {
-        text += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      const numbers = Math.floor(1000 + Math.random() * 9000);
-      return `${text}-${numbers}`;
-    }
-
-    async function getOrInitAnonymousId() {
-      const tx = dbInstance.transaction([STORE_IDENTITY], "readonly");
-      const store = tx.objectStore(STORE_IDENTITY);
-      const getReq = store.get(ID_KEY);
-
-      return new Promise((resolve) => {
-        getReq.onsuccess = async () => {
-          if (getReq.result) {
-            resolve(getReq.result);
-          } else {
-            const newId = generateSimpleId();
-            await saveAnonymousId(newId);
-            resolve(newId);
-          }
-        };
-      });
-    }
-
-    function saveAnonymousId(id) {
-      return new Promise((resolve) => {
-        const writeTx = dbInstance.transaction([STORE_IDENTITY], "readwrite");
-        const writeStore = writeTx.objectStore(STORE_IDENTITY);
-        const req = writeStore.put(id, ID_KEY);
-        req.onsuccess = () => resolve();
-      });
-    }
-
-    function updateRole() {
-      const selected = document.querySelector('input[name="userRole"]:checked').value;
-      currentRole = selected;
-
-      const dropZone = document.getElementById("dropZone");
-      const uploadBtn = document.getElementById("uploadBtn");
-      const dropZoneText = document.getElementById("dropZoneText");
-
-      if (currentRole === "viewer") {
-        dropZone.classList.add("disabled");
-        dropZoneText.innerText = "🔒 뷰어 권한 모드입니다. (파일 업로드 불가)";
-        uploadBtn.style.display = "none";
-      } else {
-        dropZone.classList.remove("disabled");
-        dropZoneText.innerText = "📁 클릭하여 여러 파일을 선택하거나 이곳으로 드래그해 놓으세요.";
-        uploadBtn.style.display = "inline-block";
-      }
-
-      loadStoredFiles();
-    }
-
-    function triggerFileInput() {
-      if (currentRole === "viewer") {
-        alert("뷰어 권한 모드에서는 파일을 업로드할 수 없습니다.");
-        return;
-      }
-      document.getElementById('fileInput').click();
-    }
-
-    async function importCustomId() {
-      const inputEl = document.getElementById("importIdInput");
-      const targetId = inputEl.value.trim();
-
-      if (!targetId) {
-        alert("이전할 저장소 ID를 입력해주세요.");
-        return;
-      }
-
-      if (confirm(`저장소 ID를 [ ${targetId} ] 로 변경하시겠습니까?`)) {
-        await saveAnonymousId(targetId);
-        document.getElementById("anonymousId").innerText = targetId;
-        inputEl.value = "";
-        alert("ID 연결이 완료되었습니다.");
-        loadStoredFiles();
-      }
-    }
-
-    function saveFilesToStorage(files) {
-      if (currentRole === "viewer") {
-        alert("뷰어 권한 모드에서는 파일을 업로드할 수 없습니다.");
-        return;
-      }
-
-      if (!files || files.length === 0) return;
-
-      const tx = dbInstance.transaction([STORE_FILES], "readwrite");
-      const store = tx.objectStore(STORE_FILES);
-
-      Array.from(files).forEach((file) => {
-        const fileData = {
-          name: file.name,
-          type: file.type || "unknown",
-          data: file,
-          size: file.size,
-          createdAt: new Date().toLocaleString()
-        };
-        store.add(fileData);
-      });
-
-      tx.oncomplete = () => {
-        loadStoredFiles();
-      };
-    }
-
-    function loadStoredFiles() {
-      const fileListEl = document.getElementById("fileList");
-      fileListEl.innerHTML = "";
-
-      const tx = dbInstance.transaction([STORE_FILES], "readonly");
-      const store = tx.objectStore(STORE_FILES);
-      const request = store.openCursor();
-      let hasFiles = false;
-
-      request.onsuccess = (e) => {
-        const cursor = e.target.result;
-        if (cursor) {
-          hasFiles = true;
-          const file = cursor.value;
-
-          const deleteBtnHtml = (currentRole === "editor") 
-            ? `<button class="btn-danger" onclick="deleteFile(${file.id})">삭제</button>` 
-            : "";
-
-          const li = document.createElement("li");
-          li.className = "file-item";
-          li.innerHTML = `
-            <div class="file-info">
-              <span class="file-name">${escapeHtml(file.name)}</span>
-              <span class="file-meta">${formatFileSize(file.size)} • ${file.createdAt}</span>
-            </div>
-            <div class="file-actions">
-              <button class="btn-secondary" onclick="openViewer(${file.id})">보기</button>
-              <button class="btn-secondary" onclick="downloadFile(${file.id})">다운</button>
-              ${deleteBtnHtml}
-            </div>
-          `;
-          fileListEl.appendChild(li);
-          cursor.continue();
-        } else {
-          if (!hasFiles) {
-            fileListEl.innerHTML = '<div class="empty-msg">저장된 파일이 없습니다.</div>';
-          }
+            querySnapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const card = document.createElement("div");
+                card.className = "file-card";
+                card.innerHTML = `
+                    <div class="file-info">
+                        <h4>${data.title}</h4>
+                        <a href="${data.link}" target="_blank">🔗 링크 열기</a>
+                    </div>
+                    <button class="btn-del" onclick="deleteItem('${docSnap.id}')">삭제</button>
+                `;
+                listContainer.appendChild(card);
+            });
+        } catch (e) {
+            console.error("데이터 불러오기 실패:", e);
         }
-      };
     }
 
-    function openViewer(id) {
-      const tx = dbInstance.transaction([STORE_FILES], "readonly");
-      const store = tx.objectStore(STORE_FILES);
-      const request = store.get(id);
+    // 데이터 추가 함수
+    window.addLink = async function() {
+        const title = document.getElementById("title").value.trim();
+        const link = document.getElementById("link").value.trim();
 
-      request.onsuccess = () => {
-        const record = request.result;
-        if (!record) return;
-
-        const modal = document.getElementById("viewerModal");
-        const modalTitle = document.getElementById("modalFileName");
-        const modalBody = document.getElementById("modalBody");
-
-        modalTitle.innerText = record.name;
-        modalBody.innerHTML = "";
-
-        const blobUrl = URL.createObjectURL(record.data);
-        const type = record.type;
-
-        if (type.startsWith("image/")) {
-          modalBody.innerHTML = `<img src="${blobUrl}" alt="미리보기">`;
-        } else if (type.startsWith("video/")) {
-          modalBody.innerHTML = `<video src="${blobUrl}" controls autoplay></video>`;
-        } else if (type.startsWith("audio/")) {
-          modalBody.innerHTML = `<audio src="${blobUrl}" controls autoplay></audio>`;
-        } else if (type === "application/pdf") {
-          modalBody.innerHTML = `<iframe src="${blobUrl}"></iframe>`;
-        } else if (type.startsWith("text/")) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            modalBody.innerHTML = `<pre>${escapeHtml(e.target.result)}</pre>`;
-          };
-          reader.readAsText(record.data);
-        } else {
-          modalBody.innerHTML = `<p style="color: var(--text-muted);">미리보기를 지원하지 않는 형식입니다.<br>다운로드 버튼을 통해 파일을 확인해주세요.</p>`;
+        if (!title || !link) {
+            alert("제목과 링크를 모두 입력해 주세요!");
+            return;
         }
 
-        modal.style.display = "flex";
-      };
-    }
+        try {
+            await addDoc(collection(db, "files"), {
+                title: title,
+                link: link,
+                createdAt: new Date()
+            });
 
-    function closeViewer() {
-      const modal = document.getElementById("viewerModal");
-      const modalBody = document.getElementById("modalBody");
-      modal.style.display = "none";
-      modalBody.innerHTML = "";
-    }
-
-    function downloadFile(id) {
-      const tx = dbInstance.transaction([STORE_FILES], "readonly");
-      const store = tx.objectStore(STORE_FILES);
-      const request = store.get(id);
-
-      request.onsuccess = () => {
-        const record = request.result;
-        if (record) {
-          const url = URL.createObjectURL(record.data);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = record.name;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
+            document.getElementById("title").value = "";
+            document.getElementById("link").value = "";
+            loadLinks();
+        } catch (e) {
+            alert("저장 실패! 파이어베이스 보안 규칙을 확인해주세요.");
+            console.error(e);
         }
-      };
-    }
+    };
 
-    function deleteFile(id) {
-      if (currentRole === "viewer") {
-        alert("뷰어 권한 모드에서는 삭제할 수 없습니다.");
-        return;
-      }
+    // 데이터 삭제 함수
+    window.deleteItem = async function(id) {
+        if (confirm("정말 삭제하시겠습니까?")) {
+            try {
+                await deleteDoc(doc(db, "files", id));
+                loadLinks();
+            } catch (e) {
+                alert("삭제 실패!");
+                console.error(e);
+            }
+        }
+    };
 
-      if (!confirm("정말 이 파일을 삭제하시겠습니까?")) return;
+    // 최초 로드 시 실행
+    loadLinks();
+</script>
 
-      const tx = dbInstance.transaction([STORE_FILES], "readwrite");
-      const store = tx.objectStore(STORE_FILES);
-      const request = store.delete(id);
-
-      request.onsuccess = () => {
-        loadStoredFiles();
-      };
-    }
-
-    function handleFileSelect(event) {
-      const files = event.target.files;
-      if (files.length > 0) {
-        saveFilesToStorage(files);
-        event.target.value = "";
-      }
-    }
-
-    function copyId() {
-      const idText = document.getElementById("anonymousId").innerText;
-      navigator.clipboard.writeText(idText).then(() => {
-        alert("저장소 ID가 복사되었습니다.");
-      });
-    }
-
-    function formatFileSize(bytes) {
-      if (bytes === 0) return "0 Bytes";
-      const k = 1024;
-      const sizes = ["Bytes", "KB", "MB", "GB"];
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
-    }
-
-    function escapeHtml(text) {
-      return text.replace(/[&<>"']/g, (m) => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
-      }[m]));
-    }
-
-    const dropZone = document.getElementById("dropZone");
-
-    ["dragenter", "dragover"].forEach(eventName => {
-      dropZone.addEventListener(eventName, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (currentRole === "editor") dropZone.classList.add("dragover");
-      }, false);
-    });
-
-    ["dragleave", "drop"].forEach(eventName => {
-      dropZone.addEventListener(eventName, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropZone.classList.remove("dragover");
-      }, false);
-    });
-
-    dropZone.addEventListener("drop", (e) => {
-      if (currentRole === "viewer") {
-        alert("뷰어 권한 모드에서는 파일을 올려둘 수 없습니다.");
-        return;
-      }
-      const dt = e.dataTransfer;
-      const files = dt.files;
-      if (files.length > 0) {
-        saveFilesToStorage(files);
-      }
-    });
-
-    window.addEventListener("DOMContentLoaded", async () => {
-      await initDB();
-      const userId = await getOrInitAnonymousId();
-      document.getElementById("anonymousId").innerText = userId;
-      loadStoredFiles();
-    });
-  </script>
 </body>
 </html>
