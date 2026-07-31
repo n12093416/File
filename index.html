@@ -40,7 +40,6 @@
       gap: 20px;
     }
 
-    /* 메인 타이틀 스타일 */
     .main-title {
       font-size: 1.6rem;
       font-weight: 800;
@@ -241,12 +240,13 @@
 
     <div class="card">
       <h2>파일 올리기</h2>
-      <p>확장자 제한 없이 모든 형식의 파일을 올릴 수 있습니다.</p>
+      <p>여러 개의 파일을 한꺼번에 선택하거나 드래그할 수 있습니다.</p>
 
       <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-        <p>📁 클릭하여 파일을 선택하거나 이곳으로 드래그해 놓으세요.</p>
+        <p>📁 클릭하여 여러 파일을 선택하거나 이곳으로 드래그해 놓으세요.</p>
         <button type="button">파일 선택하기</button>
-        <input type="file" id="fileInput" onchange="handleFileSelect(event)">
+        <!-- multiple 속성 추가 -->
+        <input type="file" id="fileInput" multiple onchange="handleFileSelect(event)">
       </div>
     </div>
 
@@ -351,23 +351,25 @@
       }
     }
 
-    function saveFileToStorage(file) {
-      if (!file) return;
+    // --- 파일 다중 저장 처리 ---
+    function saveFilesToStorage(files) {
+      if (!files || files.length === 0) return;
 
       const tx = dbInstance.transaction([STORE_FILES], "readwrite");
       const store = tx.objectStore(STORE_FILES);
 
-      const fileData = {
-        name: file.name,
-        type: file.type || "unknown",
-        data: file,
-        size: file.size,
-        createdAt: new Date().toLocaleString()
-      };
+      Array.from(files).forEach((file) => {
+        const fileData = {
+          name: file.name,
+          type: file.type || "unknown",
+          data: file,
+          size: file.size,
+          createdAt: new Date().toLocaleString()
+        };
+        store.add(fileData);
+      });
 
-      const request = store.add(fileData);
-
-      request.onsuccess = () => {
+      tx.oncomplete = () => {
         loadStoredFiles();
       };
     }
@@ -442,9 +444,9 @@
     }
 
     function handleFileSelect(event) {
-      const file = event.target.files[0];
-      if (file) {
-        saveFileToStorage(file);
+      const files = event.target.files;
+      if (files.length > 0) {
+        saveFilesToStorage(files);
         event.target.value = "";
       }
     }
@@ -492,7 +494,7 @@
       const dt = e.dataTransfer;
       const files = dt.files;
       if (files.length > 0) {
-        saveFileToStorage(files[0]);
+        saveFilesToStorage(files);
       }
     });
 
